@@ -35,7 +35,7 @@ function RenderDish({ dish }) {
     );
   else return <div />;
 }
-function RenderComments({ comments }) {
+function RenderComments({ comments, addComment, dishId }) {
   if (comments !== null)
     return (
       <div className="col-12 col-md-5 m-1">
@@ -58,8 +58,7 @@ function RenderComments({ comments }) {
             );
           })}
         </ul>
-        <CommentForm></CommentForm>
-
+        <CommentForm dishId={dishId} addComment={addComment} />
       </div>
     );
   else return <div />;
@@ -80,7 +79,9 @@ const Dishdetail = props => {
         </div>
         <div className="row">
           <RenderDish dish={props.dish} />
-          <RenderComments comments={props.comments} />
+          <RenderComments comments={props.comments}
+            addComment={props.addComment}
+            dishId={props.dish.id} />
         </div>
       </div>
     );
@@ -90,37 +91,48 @@ const Dishdetail = props => {
 };
 //button and modal here
 class CommentForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      modal: false
-    };
+  state = {
+    isModalOpen: false
+  };
 
-    this.toggle = this.toggle.bind(this);
-  }
+  toggleModal = () => {
+    this.setState({
+      isModalOpen: !this.state.isModalOpen
+    });
+  };
 
-  toggle() {
-    this.setState(prevState => ({
-      modal: !prevState.modal
-    }));
-  }
+  handleSubmit = values => {
+    this.toggleModal();
+    this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
+  };
 
   render() {
     return (
       <div>
-        <Button outline onClick={this.toggle}> Submit Comment </Button>
-        <Modal isOpen={this.state.modal} toggle={this.toggle} >
-          <ModalHeader toggle={this.toggle}>Submit Comment</ModalHeader>
+        <Button outline onClick={this.toggleModal}>
+          <span className="fa fa-pencil fa-lg"></span> Submit Comment
+        </Button>
+        <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
+          <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
           <ModalBody>
-            <LocalForm>
-              <label>Rating</label>
-              <Control.select model="xxx" >
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-              </Control.select>
+            <LocalForm onSubmit={values => this.handleSubmit(values)}>
+              <Row className="form-group">
+                <Col>
+                  <Label htmlFor="rating">Rating</Label>
+                  <Control.select
+                    model=".rating"
+                    id="rating"
+                    name="rating"
+                    className="form-control"
+                  >
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                  </Control.select>
+                </Col>
+              </Row>
               <Row className="form-group">
                 <Col>
                   <Label htmlFor="author">Your Name</Label>
@@ -158,13 +170,13 @@ class CommentForm extends React.Component {
                   />
                 </Col>
               </Row>
+              <Button type="submit" className="bg-primary">
+                Submit
+              </Button>
             </LocalForm>
           </ModalBody>
-          <ModalFooter>
-            <Button className="bg-primary" onClick={this.toggle}>Submit</Button>
-          </ModalFooter>
-        </Modal >
-      </div >
+        </Modal>
+      </div>
     );
   }
 }
