@@ -1,5 +1,22 @@
 import React from "react";
-import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem } from "reactstrap";
+import {
+  Card,
+  CardImg,
+  CardText,
+  CardBody,
+  CardTitle,
+  Breadcrumb,
+  BreadcrumbItem,
+  Label,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Row,
+  Col
+} from "reactstrap";
+import { LocalForm, Control, Errors } from 'react-redux-form';
 import { Link } from 'react-router-dom';
 
 function RenderDish({ dish }) {
@@ -19,7 +36,6 @@ function RenderDish({ dish }) {
   else return <div />;
 }
 function RenderComments({ comments }) {
-  //const comments = dish.comments;
   if (comments !== null)
     return (
       <div className="col-12 col-md-5 m-1">
@@ -42,6 +58,8 @@ function RenderComments({ comments }) {
             );
           })}
         </ul>
+        <CommentForm></CommentForm>
+
       </div>
     );
   else return <div />;
@@ -70,4 +88,85 @@ const Dishdetail = props => {
     return <div>None</div>;
   }
 };
+//button and modal here
+class CommentForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modal: false
+    };
+
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    this.setState(prevState => ({
+      modal: !prevState.modal
+    }));
+  }
+
+  render() {
+    return (
+      <div>
+        <Button outline onClick={this.toggle}> Submit Comment </Button>
+        <Modal isOpen={this.state.modal} toggle={this.toggle} >
+          <ModalHeader toggle={this.toggle}>Submit Comment</ModalHeader>
+          <ModalBody>
+            <LocalForm>
+              <label>Rating</label>
+              <Control.select model="xxx" >
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </Control.select>
+              <Row className="form-group">
+                <Col>
+                  <Label htmlFor="author">Your Name</Label>
+                  <Control.text
+                    model=".author"
+                    id="author"
+                    name="author"
+                    placeholder="Your Name"
+                    className="form-control"
+                    validators={{
+                      minLength: value => value && value.length > 2,
+                      maxLength: value => value && value.length < 16
+                    }}
+                  />
+                  <Errors
+                    className="text-danger"
+                    model=".author"
+                    show="touched"
+                    messages={{
+                      minLength: "Must be greater than 2 characters",
+                      maxLength: "Must be 15 characters or less"
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row className="form-group">
+                <Col>
+                  <Label htmlFor="comment">Comment</Label>
+                  <Control.textarea
+                    model=".comment"
+                    id="comment"
+                    name="comment"
+                    rows="6"
+                    className="form-control"
+                  />
+                </Col>
+              </Row>
+            </LocalForm>
+          </ModalBody>
+          <ModalFooter>
+            <Button className="bg-primary" onClick={this.toggle}>Submit</Button>
+          </ModalFooter>
+        </Modal >
+      </div >
+    );
+  }
+}
+
 export default Dishdetail;
